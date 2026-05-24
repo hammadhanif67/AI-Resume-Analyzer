@@ -1,0 +1,38 @@
+# Dependencies
+frontend/node_modules/
+backend/venv/
+
+# Build output
+dist/
+build/
+coverage/
+.vercel/
+frontend/dist/
+frontend/.vite/
+
+# Local environment
+.env
+.env.*
+backend/.env
+frontend/.env
+frontend/.env.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# Local data and generated files
+backend/resume_analyzer.db
+backend/uploads/
+backend/logs/
+*.log
+
+# Python cache/test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
