@@ -27,12 +27,10 @@ services:
         value: 5
       - key: DEBUG_PASSWORD_RESET_TOKENS
         value: false
-      - key: CORS_ORIGINS
-        sync: false
       - key: CORS_ORIGIN_REGEX
         value: ^https://.*\.vercel\.app$
       - key: JWT_SECRET_KEY
-        sync: false
+        generateValue: true
 
 databases:
   - name: ai-resume-analyzer-db
