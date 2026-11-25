@@ -1,3 +1,6 @@
+import hashlib
+import hmac
+import os
 from pathlib import Path
 
 from pydantic import field_validator
@@ -12,7 +15,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
     max_upload_size_mb: int = 5
-    upload_dir: Path = Path("uploads")
+    # Vercel functions can only write to /tmp.
+    upload_dir: Path = Path("/tmp/uploads") if os.environ.get("VERCEL") else Path("uploads")
     allowed_file_types: set[str] = {".pdf", ".docx"}
     debug_password_reset_tokens: bool = False
     cors_origins: list[str] = [
@@ -21,7 +25,7 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
-    cors_origin_regex: str | None = None
+    cors_origin_regex: str | None = r"^https://.*\.vercel\.app$" if os.environ.get("VERCEL") else None
 
     @field_validator("database_url", mode="before")
     @classmethod
@@ -38,6 +42,13 @@ class Settings(BaseSettings):
         return value
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    def model_post_init(self, __context: object) -> None:
+        # Hosted deployments without an explicit JWT_SECRET_KEY derive a stable,
+        # private signing key from the database URL (which carries the DB password),
+        # so no secret has to be pasted into a dashboard.
+        if self.jwt_secret_key == "change-this-secret-key-for-production" and not self.database_url.startswith("sqlite"):
+            self.jwt_secret_key = hmac.new(self.database_url.encode(), b"ai-resume-analyzer/jwt", hashlib.sha256).hexdigest()
 
 
 settings = Settings()
