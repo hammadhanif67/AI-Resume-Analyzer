@@ -1,5 +1,9 @@
 # AI Resume Analyzer
 
+🔗 **Live:** https://ai-resume-analyzer-app-mocha.vercel.app · **API docs:** https://ai-resume-analyzer-api-five.vercel.app/docs
+
+![AI Resume Analyzer: screenshot of the live site](.github/assets/preview.jpg)
+
 Premium AI SaaS-style resume analysis project with a FastAPI backend and React/Vite frontend.
 
 ## What It Includes
@@ -94,6 +98,16 @@ Verify:
 - Point `VITE_API_BASE_URL` to the deployed backend URL.
 - The backend currently uses SQLite by default. For hosted production, prefer a managed database and migration workflow.
 - Uploaded resumes and profile images are stored under `backend/uploads` by default. Use persistent storage in production.
+
+## Hosted deployment
+
+| Part | Where | Notes |
+|---|---|---|
+| Frontend | Vercel (`frontend/`, Vite) | `VITE_API_BASE_URL` points at the API |
+| Backend | Vercel Python function (`backend/index.py`, FastAPI) | Uploads go to `/tmp/uploads`; `*.vercel.app` is allowed by CORS |
+| Database | Neon PostgreSQL (free tier, via the Vercel integration) | `DATABASE_URL` is set by the integration; the JWT key is derived from it unless `JWT_SECRET_KEY` is set |
+
+On serverless hosting, uploaded profile pictures are temporary. Resume text is stored in the database at upload time, so analyses and reports are unaffected.
 
 ## Known Limitations
 
