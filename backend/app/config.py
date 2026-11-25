@@ -30,8 +30,12 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def normalize_database_url(cls, value: object) -> object:
-        if isinstance(value, str) and value.startswith("postgres://"):
-            return value.replace("postgres://", "postgresql://", 1)
+        # Pin the psycopg2 driver (what requirements.txt installs); newer
+        # SQLAlchemy releases default bare "postgresql://" URLs to psycopg 3.
+        if isinstance(value, str):
+            for prefix in ("postgres://", "postgresql://"):
+                if value.startswith(prefix):
+                    return "postgresql+psycopg2://" + value[len(prefix):]
         return value
 
     @field_validator("cors_origins", mode="before")
