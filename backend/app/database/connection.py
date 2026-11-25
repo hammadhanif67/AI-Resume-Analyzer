@@ -27,6 +27,14 @@ def get_db() -> Generator[Session, None, None]:
 def create_tables() -> None:
     import app.models  # noqa: F401
 
+    if engine.dialect.name == "postgresql":
+        # Serverless platforms start several instances at once; a transaction-level
+        # advisory lock makes them create the schema one at a time instead of racing.
+        with engine.begin() as connection:
+            connection.execute(text("SELECT pg_advisory_xact_lock(727274)"))
+            Base.metadata.create_all(bind=connection)
+        return
+
     Base.metadata.create_all(bind=engine)
     _ensure_sqlite_columns()
 
